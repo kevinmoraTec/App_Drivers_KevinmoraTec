@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "678892907481",
+    "project_id": "apptecsicomdrivers",
+    "storage_bucket": "apptecsicomdrivers.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:678892907481:android:df39edf2631f3bbb5507c8",
+        "android_client_info": {
+          "package_name": "com.example.tecsicomappdrivers"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "678892907481-fnmaliihguqs4jc687mg1l8mbgiu3vau.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnZdvnd9__xnx-9AT6EfePxxpc5xyvXKg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "678892907481-fnmaliihguqs4jc687mg1l8mbgiu3vau.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
