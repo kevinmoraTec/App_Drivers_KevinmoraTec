@@ -128,6 +128,7 @@ public class Registrer extends AppCompatActivity {
                 });
             }else {
                 Toast.makeText(Registrer.this,"No se pudo Registrar Este USer",Toast.LENGTH_SHORT).show();
+
             }
         }
     });

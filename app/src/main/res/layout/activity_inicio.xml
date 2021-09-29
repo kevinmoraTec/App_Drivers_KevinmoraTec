@@ -1,15 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Inicio">
+    tools:context=".Inicio"
+    android:orientation="vertical">
+
 
     <TextView
-        android:layout_width="match_parent"
+        android:id="@+id/tvDirecInicio"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Profile"
-        tools:ignore="MissingConstraints"></TextView>
+        android:hint="@string/direccion_origen"></TextView>
+    <Button
+        android:id="@+id/butonModificar1"
+        android:text="@string/modificar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"></Button>
+    <TextView
+        android:id="@+id/direccionFinal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/direccion_destino"></TextView>
+    <Button
+        android:id="@+id/butonModificar2"
+        android:text="@string/modificar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"></Button>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+</LinearLayout>
