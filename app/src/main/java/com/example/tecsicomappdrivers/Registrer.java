@@ -118,7 +118,7 @@ public class Registrer extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task2) {
                         if (task2.isSuccessful()){
-                            startActivity(new Intent(Registrer.this,Inicio.class));
+                            startActivity(new Intent(Registrer.this,MainActivity.class));
                             finish();
                         }else {
                             Toast.makeText(Registrer.this,"No se pudo Crear los Datos Coorectamente",Toast.LENGTH_SHORT).show();
@@ -132,5 +132,15 @@ public class Registrer extends AppCompatActivity {
             }
         }
     });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (mAuth.getCurrentUser()!=null){
+            startActivity(new Intent(Registrer.this,Inicio.class));
+            finish();
+        }
     }
 }

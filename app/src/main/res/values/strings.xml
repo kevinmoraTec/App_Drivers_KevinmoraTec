@@ -4,9 +4,10 @@
     <string name="password">Password</string>
 
     //APIMapas
-    <string name="places">AIzaSyAthxyLh2QNC929_AscyFa-x6oV1fYzaR4</string>
+    <string name="mapa">AIzaSyAthxyLh2QNC929_AscyFa-x6oV1fYzaR4</string>
     <string name="android_sdk_places_api_key">AIzaSyBjQ4dcTWA1qR3aRQgw_1aWV5onP8yzoYs</string>
     <string name="direccion_origen">Direccion Origen</string>
     <string name="direccion_destino">Direccion Destino</string>
     <string name="modificar">Modificar</string>
+    <string name="uicacion">Uicacion</string>
 </resources>
