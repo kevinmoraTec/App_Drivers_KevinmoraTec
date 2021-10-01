@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,6 +30,11 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +46,7 @@ public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
 
     private FirebaseAuth mAuth;
     private GoogleMap mMap;
+    private DatabaseReference mDatabaseReference;
 
 
     // private static int AUTOCOMPLETE_REQUEST_CODE = 1;
@@ -56,11 +63,15 @@ public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
 
         mAuth = FirebaseAuth.getInstance();
+        mDatabaseReference= FirebaseDatabase.getInstance().getReference();
 
         //Places.initialize(getApplicationContext(), getString(R.string.places));
         direccionTotal=findViewById(R.id.tvdireccionTotal);
         ubicacion = findViewById(R.id.butonUbicacion);
         cerrarSesion = findViewById(R.id.butonCerrarSecion);
+        // Bienvenida User
+
+        welcomoUserInfo();
 
         ubicacion.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,7 +80,7 @@ public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
 
             }
         });
-
+//https://www.youtube.com/watch?v=zmiDl4aK7mo
         cerrarSesion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,17 +100,7 @@ public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
 
 
 
-    /*private  void autocompleteFrom(){
-        // Set the fields to specify which types of place data to
-        // return after the user has made a selection.
-        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
 
-        // Start the autocomplete intent.
-        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
-                .build(this);
-        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-
-    }*/
 
     private void getLocalizacion() {
         int permiso = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
@@ -165,5 +166,25 @@ public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 
 
+    }
+
+    public void welcomoUserInfo(){
+        String id=mAuth.getCurrentUser().getUid();
+        mDatabaseReference.child("Drivers").child(id).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    String name =snapshot.child("NameDriver").getValue().toString();
+                    Toast.makeText(Inicio.this,"Welcome :"+name,Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        //youtube.com/watch?v=u_Bq0XrM9EQ
     }
 }

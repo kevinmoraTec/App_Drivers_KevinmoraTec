@@ -4,22 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Inicio"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".Inicio">
 
-
-    <Button
-        android:id="@+id/butonUbicacion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:text="@string/uicacion"
-        ></Button>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/butonUbicacion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:text="@string/uicacion"></Button>
 
         <TextView
             android:id="@+id/tvdireccionTotal"
@@ -27,21 +26,45 @@
             android:layout_height="wrap_content"></TextView>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/butonCerrarSecion"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:text="Cerrar Sesion"></Button>
+        android:orientation="horizontal">
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+
+        <Button
+            android:id="@+id/butonCerrarSecion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:text="Cerrar Sesion"></Button>
+
+
+        <Button
+            android:id="@+id/botonMYpetciones"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|end"
+            android:hint="MIS ASIGNACIONES"></Button>
+
+    </LinearLayout>
+
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="360dp"
+        android:layout_height="528dp"
+        android:layout_gravity="bottom|center"
+        tools:context=".MapsActivity" />
+
+    <Button
+        android:id="@+id/botonTaerPeticines"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/map"
-        tools:context=".MapsActivity"
-        android:name="com.google.android.gms.maps.SupportMapFragment" />
-
+        android:layout_gravity="right|end"
+        android:hint="MOSTRAR"
+        android:background="@drawable/boton_round"></Button>
 
 
 </LinearLayout>
