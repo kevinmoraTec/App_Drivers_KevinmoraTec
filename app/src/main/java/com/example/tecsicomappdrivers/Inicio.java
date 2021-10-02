@@ -13,11 +13,18 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -35,6 +42,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.JsonObject;
+import com.shashank.sony.fancygifdialoglib.FancyGifDialog;
+import com.shashank.sony.fancygifdialoglib.FancyGifDialogListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,11 +55,13 @@ import java.util.List;
 public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
 
     TextView direccionTotal, direccionFinal;
-    Button ubicacion, cerrarSesion;
+    Button ubicacion, cerrarSesion,mostrar;
 
     private FirebaseAuth mAuth;
     private GoogleMap mMap;
     private DatabaseReference mDatabaseReference;
+    private RequestQueue requestQueue;
+    private static final String url="http://192.168.1.7:4000/allasignaciones";
 
 
     // private static int AUTOCOMPLETE_REQUEST_CODE = 1;
@@ -56,6 +71,7 @@ public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inicio);
+        requestQueue= Volley.newRequestQueue(this);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -69,6 +85,7 @@ public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
         direccionTotal=findViewById(R.id.tvdireccionTotal);
         ubicacion = findViewById(R.id.butonUbicacion);
         cerrarSesion = findViewById(R.id.butonCerrarSecion);
+        mostrar=findViewById(R.id.botonTaerPeticines);
         // Bienvenida User
 
         welcomoUserInfo();
@@ -80,7 +97,7 @@ public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
 
             }
         });
-//https://www.youtube.com/watch?v=zmiDl4aK7mo
+//
         cerrarSesion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,8 +109,16 @@ public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
+        mostrar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                traerSolicitudes();
+            }
+        });
+
 
         //Para mapas >>> https://www.youtube.com/watch?v=cZWSpWwToas
+
 
 
     }
@@ -185,6 +210,69 @@ public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
-        //youtube.com/watch?v=u_Bq0XrM9EQ
+
     }
+    public  void traerSolicitudes(){
+        StringRequest request=new StringRequest(
+                Request.Method.GET,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+
+                        JSONObject jsonObject = null;
+                        try {
+                            jsonObject = new JSONObject(response);
+                            String startDireccion=jsonObject.getString("StartDirection").toString();
+                            //Toast.makeText(Inicio.this,"-> "+startDireccion,Toast.LENGTH_SHORT).show();
+                           // Toast.makeText(Inicio.this,"-> "+jsonObject.getString("FinalDirection").toString(),Toast.LENGTH_SHORT).show();
+                            cargarAsignaciones(startDireccion,jsonObject.getString("FinalDirection").toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        //Toast.makeText(Inicio.this,response,Toast.LENGTH_SHORT).show();
+
+
+
+
+
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("Error Volelly",error.getMessage());
+                    }
+                }
+        );
+        requestQueue.add(request);
+    }
+
+    public void cargarAsignaciones(String starD,String finishD){
+        new FancyGifDialog.Builder(Inicio.this)
+                .setTitle("Direcccion :"+starD) // You can also send title like R.string.from_resources
+                .setMessage("Direccon Final :"+finishD) // or pass like R.string.description_from_resources
+                .setTitleTextColor(R.color.titleText)
+                .setDescriptionTextColor(R.color.descriptionText)
+                .setNegativeBtnText("Cancel") // or pass it like android.R.string.cancel
+                .setPositiveBtnBackground(R.color.positiveButton)
+                .setPositiveBtnText("Ok") // or pass it like android.R.string.ok
+                .setNegativeBtnBackground(R.color.negativeButton)
+                .setGifResource(R.drawable.giftdireccion)   //Pass your Gif here
+                .isCancellable(true)
+                .OnPositiveClicked(new FancyGifDialogListener() {
+                    @Override
+                    public void OnClick() {
+                        Toast.makeText(Inicio.this,"Ok",Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .OnNegativeClicked(new FancyGifDialogListener() {
+                    @Override
+                    public void OnClick() {
+                        Toast.makeText(Inicio.this,"Cancel",Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .build();
+    }
+
 }

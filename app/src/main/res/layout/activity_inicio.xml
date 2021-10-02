@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".Inicio">
+    android:orientation="vertical">
 
 
     <LinearLayout
@@ -63,8 +62,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="right|end"
-        android:hint="MOSTRAR"
-        android:background="@drawable/boton_round"></Button>
+        android:background="@drawable/boton_round"
+        android:hint="Mostrar"
+        android:textColor="#100505"
+        android:textColorHighlight="#0C0303"
+        android:textColorHint="#040101"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        tools:text="MOSTRAR"></Button>
 
 
 </LinearLayout>
