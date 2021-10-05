@@ -5,15 +5,34 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.example.tecsicomappdrivers.SelectUrl;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class MainActivity extends AppCompatActivity {
     EditText etemail,etpassword;
@@ -23,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private String password="";
 
     private FirebaseAuth mAuth;
+    private DatabaseReference mDatabaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
         etpassword=findViewById(R.id.editTextTextPersonName2);
         login=findViewById(R.id.button);
         registro=findViewById(R.id.button2);
+        mDatabaseReference= FirebaseDatabase.getInstance().getReference();
+
 
         //https://www.youtube.com/watch?v=xwhEHb_AZ6k
         //https://www.youtube.com/watch?v=IEc44_CxoyY
@@ -58,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         }
-
+// para validar el inicio de Seccion del Conductor
         private void loginUser(){
             mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
@@ -75,5 +97,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-    }
+}
 

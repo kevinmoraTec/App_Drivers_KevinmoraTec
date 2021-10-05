@@ -50,18 +50,26 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
 
     TextView direccionTotal, direccionFinal;
-    Button ubicacion, cerrarSesion,mostrar;
+    Button ubicacion, cerrarSesion,mostrar,myAsignacion;
 
     private FirebaseAuth mAuth;
     private GoogleMap mMap;
     private DatabaseReference mDatabaseReference;
     private RequestQueue requestQueue;
-    private static final String url="http://192.168.1.7:4000/allasignaciones";
+    private static final String url="http://192.168.1.5:4000/allasignaciones";
+    private static final String urlmypeticion="http://192.168.1.5:4000/selectViajeManual";
+    private static final String urlDriveraddActivo="http://192.168.1.5:4000/addDriverActivo";
+
+
+
 
 
     // private static int AUTOCOMPLETE_REQUEST_CODE = 1;
@@ -86,9 +94,14 @@ public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
         ubicacion = findViewById(R.id.butonUbicacion);
         cerrarSesion = findViewById(R.id.butonCerrarSecion);
         mostrar=findViewById(R.id.botonTaerPeticines);
-        // Bienvenida User
+        myAsignacion=findViewById(R.id.botonMYpetciones);
 
+
+        // Bienvenido User
         welcomoUserInfo();
+
+        //Asignar los datod A mysql DriverActivo
+        asignarDriverAMysqlDriverActivo();
 
         ubicacion.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,6 +133,13 @@ public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
         //Para mapas >>> https://www.youtube.com/watch?v=cZWSpWwToas
 
 
+
+        myAsignacion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cargarmyPeticion();
+            }
+        });
 
     }
 
@@ -206,6 +226,34 @@ public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+            Log.e("error Welcome User ",error.getMessage());
+            }
+        });
+
+
+    }
+// Envia los datos que mi user esta activo A ka bd
+    public void asignarDriverAMysqlDriverActivo(){
+        String id=mAuth.getCurrentUser().getUid();
+        mDatabaseReference.child("Drivers").child(id).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    String name =snapshot.child("NameDriver").getValue().toString();
+                    String placaDriver =snapshot.child("PlacaDriver").getValue().toString();
+
+                    Toast.makeText(Inicio.this,"Welcome Placa:"+placaDriver,Toast.LENGTH_SHORT).show();
+
+                    Toast.makeText(Inicio.this,"Welcome Name:"+name,Toast.LENGTH_SHORT).show();
+                    eviarAbdDrivaersActivos(id,name,placaDriver);
+                }else {
+                    Toast.makeText(Inicio.this,"No Existe Driver",Toast.LENGTH_SHORT).show();
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });
@@ -247,11 +295,184 @@ public class Inicio extends AppCompatActivity implements OnMapReadyCallback {
         );
         requestQueue.add(request);
     }
+// Motod para cargar una peticion si la Asignacion es para mi ID
+    public  void cargarmyPeticion(){
+        // Validamos que la Asignacion sea para mi id
+        String id=mAuth.getCurrentUser().getUid();
+        mDatabaseReference.child("Drivers").child(id).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    //Toast.makeText(Inicio.this,id,Toast.LENGTH_SHORT).show();
+
+                    StringRequest request=new StringRequest(
+                            Request.Method.GET,
+                            urlmypeticion,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+
+                                    JSONObject jsonObject = null;
+                                    try {
+                                        jsonObject = new JSONObject(response);
+                                        String idAsignaciondriver=jsonObject.getString("idDriverActivo").toString();
+                                        Toast.makeText(Inicio.this,idAsignaciondriver,Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(Inicio.this,">>"+id,Toast.LENGTH_SHORT).show();
+
+                                        if (id.equals(idAsignaciondriver)){
+                                            jsonObject = new JSONObject(response);
+                                            String idRequqestCaragarDatos=jsonObject.getString("idRequqest").toString();
+                                            Toast.makeText(Inicio.this,idRequqestCaragarDatos,Toast.LENGTH_SHORT).show();
+                                            int idRequesCargasDatos=Integer.parseInt(idRequqestCaragarDatos);
+
+                                            //Toast.makeText(Inicio.this,"-> "+startDireccion,Toast.LENGTH_SHORT).show();
+                                            // Toast.makeText(Inicio.this,"-> "+jsonObject.getString("FinalDirection").toString(),Toast.LENGTH_SHORT).show();
+                                            mostarDatosPeticionAsigada(idRequesCargasDatos);
+                                        }else {
+                                            Toast.makeText(Inicio.this,"No tienes Asignaciones DEL ADministrados",Toast.LENGTH_SHORT).show();
+
+                                        }
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    //Toast.makeText(Inicio.this,response,Toast.LENGTH_SHORT).show();
+
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.e("Error Volelly",error.getMessage());
+                        }
+                    }
+                    );
+                    requestQueue.add(request);
+
+                }else{
+                    Toast.makeText(Inicio.this,"No Existe User",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+    }
+
+    public void eviarAbdDrivaersActivos(String id,String name,String placaDriver){
+        Toast.makeText(Inicio.this,"Heyy >>"+id+" : "+placaDriver,Toast.LENGTH_SHORT).show();
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, urlDriveraddActivo, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                ////////////
+                ///////////  Respusta del servidor///////////
+                ////////////
+                Toast.makeText(Inicio.this,"[]"+response,Toast.LENGTH_SHORT).show();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("Error Volelly",error.getMessage());
+            }
+        }){
+            protected Map<String,String>  getParams(){
+                Map<String,String> params = new HashMap<>();
+                params.put("idDriverActivo",id);
+                params.put("Nombre",name);
+                params.put("placa",placaDriver);
+                return params;
+            }
+        };
+        Volley.newRequestQueue(this).add(postRequest);
+
+    }
+
+    public  void mostarDatosPeticionAsigada(int idRequesColsulta){
+        Toast.makeText(Inicio.this,"[Lllego al final Ok Ok]",Toast.LENGTH_SHORT).show();
+
+        String urlMostrarDatosAgisnacion="http://192.168.1.5:4000/consultaDatosRequesAsignado/"+idRequesColsulta;
+
+        StringRequest getRequest = new StringRequest(Request.Method.GET, urlMostrarDatosAgisnacion, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    int idRequest=0;
+                    String nameUser="";
+                    String startDirection="";
+                    String finalDirection="";
+                    String descriptions="";
+                    int estado=0;
+                    String nombreAdministrador="";
+                    String dateOrden="";
+                    JSONObject  jsonObject = new JSONObject(response);
+                    idRequest=jsonObject.getInt("idRequest");
+                    nameUser=jsonObject.getString("nameUser");
+                    startDirection=jsonObject.getString("StartDirection");
+                    finalDirection=jsonObject.getString("FinalDirection");
+                    descriptions=jsonObject.getString("Descriptions");
+                    estado=jsonObject.getInt("Estado");
+                    nombreAdministrador=jsonObject.getString("Admistrador");
+                    dateOrden=jsonObject.getString("DateOrden");
+
+                    cargarAsignacionesDatosDelRequest(idRequest,nameUser,descriptions,startDirection,finalDirection,estado,nombreAdministrador,dateOrden);
+
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        Volley.newRequestQueue(this).add(getRequest);
+
+    }
+
 
     public void cargarAsignaciones(String starD,String finishD){
         new FancyGifDialog.Builder(Inicio.this)
                 .setTitle("Direcccion :"+starD) // You can also send title like R.string.from_resources
                 .setMessage("Direccon Final :"+finishD) // or pass like R.string.description_from_resources
+                .setTitleTextColor(R.color.titleText)
+                .setDescriptionTextColor(R.color.descriptionText)
+                .setNegativeBtnText("Cancel") // or pass it like android.R.string.cancel
+                .setPositiveBtnBackground(R.color.positiveButton)
+                .setPositiveBtnText("Ok") // or pass it like android.R.string.ok
+                .setNegativeBtnBackground(R.color.negativeButton)
+                .setGifResource(R.drawable.giftdireccion)   //Pass your Gif here
+                .isCancellable(true)
+                .OnPositiveClicked(new FancyGifDialogListener() {
+                    @Override
+                    public void OnClick() {
+                        Toast.makeText(Inicio.this,"Ok",Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .OnNegativeClicked(new FancyGifDialogListener() {
+                    @Override
+                    public void OnClick() {
+                        Toast.makeText(Inicio.this,"Cancel",Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .build();
+    }
+
+    public void cargarAsignacionesDatosDelRequest(int idRequest,String nameUserString,String description,String startDireccion,String finishD, int estad,String nombreAdministrado,String dateorden){
+        new FancyGifDialog.Builder(Inicio.this)
+                .setTitle("Direcccion : "+startDireccion) // You can also send title like R.string.from_resources
+                .setMessage("Direccon Final : "+finishD+""+"\n"+""
+                        +"Sector/Referencia : "+description+"\n"+""
+                        +"Usuario : "+nameUserString+"\n"+""
+                        +"Administrador : "+nombreAdministrado+"\n"+""
+                        +"Fecha : "+dateorden+"\n"+""
+                        +"Estado : "+estad) // or pass like R.string.description_from_resources
                 .setTitleTextColor(R.color.titleText)
                 .setDescriptionTextColor(R.color.descriptionText)
                 .setNegativeBtnText("Cancel") // or pass it like android.R.string.cancel
